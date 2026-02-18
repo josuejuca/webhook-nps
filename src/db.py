@@ -16,8 +16,8 @@ def _normalize_mysql_url(url: str) -> str:
     if not url:
         return url
 
-    # Se o usuário informar mysql://, assume PyMySQL.
-    # (SQLAlchemy recomenda explicitar o driver: mysql+pymysql://)
+    
+    
     if url.startswith("mysql://"):
         return "mysql+pymysql://" + url[len("mysql://") :]
     return url
@@ -31,8 +31,8 @@ def _create_engine(database_url: str):
             "pool_pre_ping": True,
         }
 
-        # Para SQLite em memória, precisamos de StaticPool para reutilizar a mesma conexão
-        # (senão cada sessão veria um banco vazio).
+        
+        
         if ":memory:" in database_url:
             engine_kwargs["poolclass"] = StaticPool
 
@@ -67,19 +67,19 @@ def _engine_is_available(candidate_engine) -> bool:
 def _select_engine():
     mysql_url = _normalize_mysql_url(DATABASE_URL_MYSQL)
 
-    # 1) tenta Postgres (DATABASE_URL)
+    
     if DATABASE_URL:
         candidate = _create_engine(DATABASE_URL)
         if _engine_is_available(candidate):
             return candidate
 
-    # 2) fallback opcional para MySQL
+    
     if mysql_url:
         candidate = _create_engine(mysql_url)
         if _engine_is_available(candidate):
             return candidate
 
-    # 3) fallback final: sem backup/persistência
+    
     return _create_engine("sqlite:///:memory:")
 
 

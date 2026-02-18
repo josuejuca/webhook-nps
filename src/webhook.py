@@ -62,15 +62,15 @@ def _simplify_pydantic_errors(errors):
 
 @app.exception_handler(RequestValidationError)
 async def request_validation_exception_handler(request: Request, exc: RequestValidationError):
-    # FastAPI valida o body antes de entrar no handler da rota.
-    # Aqui devolvemos um 400 mais estável e sem detalhes internos.
+    
+    
     try:
         raw = await request.body()
         safe_raw = raw.decode("utf-8", errors="replace") if raw else ""
     except Exception:
         safe_raw = ""
 
-    # Tenta capturar JSON (se existir) para log. Caso falhe, guarda raw.
+    
     payload_for_log: dict
     if safe_raw:
         try:
@@ -83,7 +83,7 @@ async def request_validation_exception_handler(request: Request, exc: RequestVal
 
     errors = _simplify_pydantic_errors(exc.errors())
 
-    # Melhor esforço de log (não derruba a API se o DB estiver fora).
+    
     try:
         from .db import SessionLocal
 
@@ -108,14 +108,14 @@ async def request_validation_exception_handler(request: Request, exc: RequestVal
 
 @app.on_event("startup")
 def on_startup():
-    # cria tabelas automaticamente (para MVP). Em produção, prefira Alembic.
+    
     Base.metadata.create_all(bind=engine)
 
 def _utc_now_iso():
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 def _event_id(id_venda: int) -> str:
-    # evt_YYYYMMDD_<id_venda>
+    
     d = datetime.now(timezone.utc).strftime("%Y%m%d")
     return f"evt_{d}_{id_venda}"
 
@@ -152,7 +152,7 @@ async def receive_webhook(
 
     payload_any = payload.model_dump(mode="json")
 
-    # 3) se válido: salva em logs (valid=true) e em data
+    
     log = WebhookLog(payload=payload_any, valid=True)
     db.add(log)
 
